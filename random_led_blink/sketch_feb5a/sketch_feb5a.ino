@@ -12,7 +12,6 @@ class LedControl{
     LedControl(int led, int state, unsigned long prev, long interv);
     void getPinLogs(); // this will print to the serial monitor any led status change
     void updateLedState(int state){this->ledState = state;}
-    void low_Activation(int state);
 
 };
 
@@ -24,12 +23,6 @@ void LedControl::getPinLogs(){
   Serial.println(logging);
 }
 
-void LedControl::low_Activation(int state){
-      if(state==0)
-        this->ledState = HIGH;
-      else
-        this->ledState = LOW;
-    }
 
 LedControl L1(7,LOW,0,2000);
 LedControl L2(6,LOW,0,1500);
@@ -66,48 +59,12 @@ void checkUpdate(LedControl &L){
 
 }
 
-// led count function
-int length = 4;
-int isOn[] = {0, 0, 0, 0, 0};
-int counter = 0;
-
-void resetLEDS(LedControl *Led_Array){
-  for(int i=0;i<length;i++){
-    Led_Array[i].updateLedState(LOW);
-  }
-}
-
-void updateLEDS_counter(LedControl *Led_Array){
-    for(int i=0;i<length;i++){
-    digitalWrite(Led_Array[i].ledPin,Led_Array[i].ledState);
-  }
-}
-
-void countLED(){
-  LedControl Led_Array[] = {L1, L2, L3, L4, L5};
-  counter+=1;
-  if(counter%31==0){
-    counter = 0;
-    resetLEDS(Led_Array);
-  }
-  
-  for(int i=0;counter>0;i++){
-    Led_Array[i].low_Activation(counter%2);
-  }
-
-  Serial.println(counter);
-
-  updateLEDS_counter(Led_Array);
-  
-}
 
 void loop() {
-  
-  countLED();
-  delay(1000);
-  // checkUpdate(L1);
-  // checkUpdate(L2);
-  // checkUpdate(L3);
-  // checkUpdate(L4);
-  // checkUpdate(L5);
+ 
+  checkUpdate(L1);
+  checkUpdate(L2);
+  checkUpdate(L3);
+  checkUpdate(L4);
+  checkUpdate(L5);
 }
