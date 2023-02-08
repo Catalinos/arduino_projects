@@ -1,5 +1,12 @@
-// led control class
+/* Author: Pantar Catalin (@Catalinos on github)
 
+  This program counts up to 31 and lights up the LEDs in order to show the binary representation of that number
+
+  It uses 7-3 pins with 7 being LSB and 3 being MSB
+
+*/
+
+// led control class
 class LedControl{
 
   public:
@@ -16,7 +23,6 @@ class LedControl{
 
 };
 
-
 LedControl::LedControl(int led, int state, unsigned long prev, long interv):ledPin(led), ledState(state), previousMillis(prev), interval(interv){}
 
 void LedControl::getPinLogs(){
@@ -29,7 +35,7 @@ void LedControl::low_Activation(int state){
         this->ledState = HIGH;
       else
         this->ledState = LOW;
-    }
+}
 
 
 LedControl L1(7,LOW,0,2000);
@@ -38,7 +44,7 @@ LedControl L3(5,LOW,0,1000);
 LedControl L4(4,LOW,0,500);
 LedControl L5(3,LOW,0,100);
 
-
+// setting up the pins as outputs and also the serial monitor for printing
 void setup() {
   Serial.begin(9600);
   pinMode(L1.ledPin, OUTPUT);
@@ -50,35 +56,20 @@ void setup() {
 }
 
 
-// led state change function
-void checkUpdate(LedControl &L){
-
-  unsigned long currentMillis = millis();
-  if(currentMillis - L.previousMillis >= L.interval){
-    L.previousMillis = currentMillis;
-    if(L.ledState == HIGH)
-      L.ledState = LOW;
-    else
-      L.ledState = HIGH;
-    if(L.ledPin == 7)
-      L.getPinLogs();
-  }
-  digitalWrite(L.ledPin, L.ledState);
-
-}
-
-// led count function
 int length = 5;
-int isOn[] = {0, 0, 0, 0, 0};
 int counter = 0;
 int freq = 100;
 
+// this function will reset the leds when the counter reaches the maximum value
 void resetLEDS(LedControl *Led_Array){
+  
   for(int i=0;i<length;i++){
     Led_Array[i].updateLedState(LOW);
   }
+
 }
 
+// this function helps us view the counted numbers in binary and decimal from the serial monitor
 void print_toSerial(LedControl *Led_Array){
 
     for(int i=length-1;i>=0;i--){
@@ -90,20 +81,26 @@ void print_toSerial(LedControl *Led_Array){
 
 }
 
+// function to set our led states HIGH/LOW
 void updateLEDS_counter(LedControl *Led_Array){
+
     for(int i=0;i<length;i++){
     digitalWrite(Led_Array[i].ledPin,Led_Array[i].ledState);
   }
   print_toSerial(Led_Array);
+
 }
 
+// this is the main function
 void countLED(){
   LedControl Led_Array[] = {L1, L2, L3, L4, L5};
   counter+=1;
+
   if(counter%32==0){
     counter = 0;
     resetLEDS(Led_Array);
   }
+
   for(int i=0;i<length;i++){
     int mask = 0x01 << i;
     Led_Array[i].ledState = (mask & counter) >> i;
@@ -113,13 +110,10 @@ void countLED(){
   
 }
 
+// looping function
 void loop() {
   
   countLED();
   delay(freq);
-  // checkUpdate(L1);
-  // checkUpdate(L2);
-  // checkUpdate(L3);
-  // checkUpdate(L4);
-  // checkUpdate(L5);
+
 }
